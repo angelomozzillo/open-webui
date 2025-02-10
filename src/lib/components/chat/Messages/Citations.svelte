@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import CitationsModal from './CitationsModal.svelte';
+	import { getContext, onMount } from 'svelte';
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
@@ -13,7 +12,6 @@
 	let showPercentage = false;
 	let showRelevance = true;
 
-	let showCitationModal = false;
 	let selectedCitation: any = null;
 	let isCollapsibleOpen = false;
 
@@ -51,7 +49,6 @@
 				const metadata = source.metadata?.[index];
 				const distance = source.distances?.[index];
 
-				// Within the same citation there could be multiple documents
 				const id = metadata?.source ?? 'N/A';
 				let _source = source?.source;
 
@@ -85,110 +82,74 @@
 		showRelevance = calculateShowRelevance(citations);
 		showPercentage = shouldShowPercentage(citations);
 	}
+
+	onMount(() => {
+		console.log('onMount triggered');
+    	if (citations.length > 0) {
+			selectedCitation = citations.find(citation => citation.source.url?.endsWith('.pdf')) || citations[0];
+			if (selectedCitation?.source?.url?.endsWith('.pdf')) {
+				console.log('PDF Source:', selectedCitation.source.url);
+			} else {
+				console.log(selectedCitation.source.url);
+			}
+    	}
+	});
 </script>
 
-<CitationsModal
-	bind:show={showCitationModal}
-	citation={selectedCitation}
-	{showPercentage}
-	{showRelevance}
-/>
+<style>
+	.sidebar {
+		@apply fixed top-0 right-0 w-80 h-full bg-white dark:bg-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out;
+		transform: translateX(100%);
+	}
+	.sidebar.open {
+		transform: translateX(0);
+	}
+	.pdf-viewer {
+		@apply w-full h-full;
+		border: none;
+	}
+</style>
 
+<!-- Main Citation List -->
 {#if citations.length > 0}
-	<div class=" py-0.5 -mx-0.5 w-full flex gap-1 items-center flex-wrap">
-		{#if citations.length <= 3}
-			<div class="flex text-xs font-medium">
-				{#each citations as citation, idx}
-					<button
-						id={`source-${citation.source.name}`}
-						class="no-toggle outline-none flex dark:text-gray-300 p-1 bg-white dark:bg-gray-900 rounded-xl max-w-96"
-						on:click={() => {
-							showCitationModal = true;
-							selectedCitation = citation;
-						}}
-					>
-						{#if citations.every((c) => c.distances !== undefined)}
-							<div class="bg-gray-50 dark:bg-gray-800 rounded-full size-4">
-								{idx + 1}
-							</div>
-						{/if}
-						<div
-							class="flex-1 mx-1 line-clamp-1 text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition"
-						>
-							{citation.source.name}
-						</div>
-					</button>
-				{/each}
-			</div>
-		{:else}
-			<Collapsible bind:open={isCollapsibleOpen} className="w-full">
-				<div
-					class="flex items-center gap-2 text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition cursor-pointer"
-				>
-					<div class="flex-grow flex items-center gap-1 overflow-hidden">
-						<span class="whitespace-nowrap hidden sm:inline">{$i18n.t('References from')}</span>
-						<div class="flex items-center">
-							<div class="flex text-xs font-medium items-center">
-								{#each citations.slice(0, 2) as citation, idx}
-									<button
-										class="no-toggle outline-none flex dark:text-gray-300 p-1 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition rounded-xl max-w-96"
-										on:click={() => {
-											showCitationModal = true;
-											selectedCitation = citation;
-										}}
-										on:pointerup={(e) => {
-											e.stopPropagation();
-										}}
-									>
-										{#if citations.every((c) => c.distances !== undefined)}
-											<div class="bg-gray-50 dark:bg-gray-800 rounded-full size-4">
-												{idx + 1}
-											</div>
-										{/if}
-										<div class="flex-1 mx-1 line-clamp-1 truncate">
-											{citation.source.name}
-										</div>
-									</button>
-								{/each}
-							</div>
-						</div>
-						<div class="flex items-center gap-1 whitespace-nowrap">
-							<span class="hidden sm:inline">{$i18n.t('and')}</span>
-							{citations.length - 2}
-							<span>{$i18n.t('more')}</span>
-						</div>
-					</div>
-					<div class="flex-shrink-0">
-						{#if isCollapsibleOpen}
-							<ChevronUp strokeWidth="3.5" className="size-3.5" />
-						{:else}
-							<ChevronDown strokeWidth="3.5" className="size-3.5" />
-						{/if}
-					</div>
+	<div class="py-0.5 -mx-0.5 w-full flex gap-1 items-center flex-wrap">
+		{#each citations as citation, idx}
+			<button
+				id={`source-${citation.source.name}`}
+				class="no-toggle outline-none flex dark:text-gray-300 p-1 bg-white dark:bg-gray-900 rounded-xl max-w-96"
+				on:click={() => (selectedCitation = citation)}
+			>
+				{#if citations.every((c) => c.distances !== undefined)}
+					<div class="bg-gray-50 dark:bg-gray-800 rounded-full size-4">{idx + 1}</div>
+				{/if}
+				<div class="flex-1 mx-1 line-clamp-1 text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition">
+					{citation.source.name}
 				</div>
-				<div slot="content">
-					<div class="flex text-xs font-medium">
-						{#each citations as citation, idx}
-							<button
-								class="no-toggle outline-none flex dark:text-gray-300 p-1 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 transition rounded-xl max-w-96"
-								on:click={() => {
-									showCitationModal = true;
-									selectedCitation = citation;
-								}}
-							>
-								{#if citations.every((c) => c.distances !== undefined)}
-									<div class="bg-gray-50 dark:bg-gray-800 rounded-full size-4">
-										{idx + 1}
-									</div>
-								{/if}
-								<div class="flex-1 mx-1 line-clamp-1 truncate">
-									{citation.source.name}
-								</div>
-							</button>
-						{/each}
-					</div>
-				</div>
-			</Collapsible>
-		{/if}
+			</button>
+		{/each}
 	</div>
 {/if}
+
+<!-- Sidebar Panel for Citation Details -->
+<div class={`sidebar ${selectedCitation ? 'open' : ''}`}>
+	{#if selectedCitation}
+		<div class="p-4 flex flex-col h-full">
+			<button class="self-end text-gray-500 hover:text-gray-800" on:click={() => (selectedCitation = null)}>
+				&times;
+			</button>
+			<h2 class="text-lg font-bold mb-2">{selectedCitation.source.name}</h2>
+
+			<div class="overflow-y-auto flex-1">
+				{#if selectedCitation.source.url && selectedCitation.source.url.endsWith('.pdf')}
+					<!-- PDF Viewer -->
+					<iframe src={selectedCitation.source.url} class="pdf-viewer"></iframe>
+				{:else}
+					<!-- Fallback for Text Documents -->
+					{#each selectedCitation.document as doc}
+						<p class="mb-2 text-sm text-gray-700 dark:text-gray-300">{doc}</p>
+					{/each}
+				{/if}
+			</div>
+		</div>
+	{/if}
+</div>

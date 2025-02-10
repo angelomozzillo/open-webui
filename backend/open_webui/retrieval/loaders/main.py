@@ -149,6 +149,7 @@ class Loader:
                 )
         else:
             if file_ext == "pdf":
+                print('Loading pff')
                 loader = PyPDFLoader(
                     file_path, extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES")
                 )
