@@ -14,6 +14,7 @@
 	import type { i18n as i18nType } from 'i18next';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
+
 	import {
 		chatId,
 		chats,
@@ -81,6 +82,7 @@
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
+	import PDFViewer from './PdfViewer.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
@@ -134,6 +136,11 @@
 	let chatFiles = [];
 	let files = [];
 	let params = {};
+	let pdfUrl = './1d0963b0-f965-4a74-b445-f9c5fb8c749c_MOZZILLO_Missione_652_autoriz_dottorandi_signed_signed.pdf';
+	let isSidebarOpen = true;
+	let sidebarWidth = 0; 
+
+	$: sidebarWidth = isSidebarOpen ? 600 : 0;
 
 	$: if (chatIdProp) {
 		(async () => {
@@ -2063,6 +2070,16 @@
 					{/if}
 				</div>
 			</Pane>
+			<Pane
+				class="h-full flex w-full relative"
+				bind:size={sidebarWidth}
+				minSize={0}
+				maxSize={600}
+				style="transition: width 0.3s ease;"
+			>
+				<!-- Pass pdfUrl and isSidebarOpen to PDFViewer -->
+				<PDFViewer {pdfUrl} bind:isSidebarOpen={isSidebarOpen} />
+			</Pane>
 
 			<ChatControls
 				bind:this={controlPaneComponent}
@@ -2085,6 +2102,8 @@
 				{showMessage}
 				{eventTarget}
 			/>
+			
+			
 		</PaneGroup>
 	{:else if loading}
 		<div class=" flex items-center justify-center h-full w-full">
