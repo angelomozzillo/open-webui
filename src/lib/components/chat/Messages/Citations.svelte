@@ -3,6 +3,7 @@
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
+	import PdfViewer from './Pdf/PdfViewer.svelte'; // Import PdfViewer component
 
 	const i18n = getContext('i18n');
 
@@ -14,6 +15,27 @@
 
 	let selectedCitation: any = null;
 	let isCollapsibleOpen = false;
+
+	export let isPdfExpanded = false; // New prop to control expansion
+	let togglePdfViewer = false; // Flag to control PDF visibility
+
+	function togglePdfExpansion() {
+		isPdfExpanded = !isPdfExpanded; // Toggle the expansion state
+	}
+
+	// Function to handle the visibility of the PDF viewer when a citation is clicked
+	async function togglePdfViewerVisibility(citation: any) {
+		// Check if the citation is already selected
+		if (selectedCitation && selectedCitation.id === citation.id) {
+			// If the same citation is clicked, toggle visibility
+			togglePdfViewer = !togglePdfViewer;
+		} else {
+			// Otherwise, select the new citation and show the PDF
+			selectedCitation = citation;
+			togglePdfViewer = true;
+			await fetchCitationPDF(citation);
+		}
+	}
 
 	function calculateShowRelevance(sources: any[]) {
 		const distances = sources.flatMap((citation) => citation.distances ?? []);
@@ -84,31 +106,34 @@
 	}
 
 	onMount(() => {
-		console.log('onMount triggered');
-    	if (citations.length > 0) {
-			selectedCitation = citations.find(citation => citation.source.url?.endsWith('.pdf')) || citations[0];
-			if (selectedCitation?.source?.url?.endsWith('.pdf')) {
-				console.log('PDF Source:', selectedCitation.source.url);
-			} else {
-				console.log(selectedCitation.source.url);
-			}
-    	}
-	});
-</script>
+		// Automatically select the first citation
+		if (citations.length > 0 && !selectedCitation) {
+			const firstCitation = citations[0];
+			selectedCitation = firstCitation;
 
-<style>
-	.sidebar {
-		@apply fixed top-0 right-0 w-80 h-full bg-white dark:bg-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out;
-		transform: translateX(100%);
+			// Fetch the PDF path for the first citation
+			fetchCitationPDF(firstCitation);
+		}
+	});
+
+	async function fetchCitationPDF(citation: any) {
+		try {
+			const response = await fetch(citation.source.url);
+			if (response.ok) {
+				const data = await response.json();
+				if (data.path?.endsWith('.pdf')) {
+					const decodedPath = decodeURIComponent(data.path);
+					const fileName = decodedPath.split('/').pop(); // Extract filename from path
+					selectedCitation = { ...citation, pdfPath: fileName };
+				}
+			} else {
+				console.error('Failed to fetch citation data:', response.status);
+			}
+		} catch (error) {
+			console.error('Error fetching citation path:', error);
+		}
 	}
-	.sidebar.open {
-		transform: translateX(0);
-	}
-	.pdf-viewer {
-		@apply w-full h-full;
-		border: none;
-	}
-</style>
+</script>
 
 <!-- Main Citation List -->
 {#if citations.length > 0}
@@ -117,12 +142,14 @@
 			<button
 				id={`source-${citation.source.name}`}
 				class="no-toggle outline-none flex dark:text-gray-300 p-1 bg-white dark:bg-gray-900 rounded-xl max-w-96"
-				on:click={() => (selectedCitation = citation)}
+				on:click={() => togglePdfViewerVisibility(citation)}
 			>
 				{#if citations.every((c) => c.distances !== undefined)}
 					<div class="bg-gray-50 dark:bg-gray-800 rounded-full size-4">{idx + 1}</div>
 				{/if}
-				<div class="flex-1 mx-1 line-clamp-1 text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition">
+				<div
+					class="flex-1 mx-1 line-clamp-1 text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition"
+				>
 					{citation.source.name}
 				</div>
 			</button>
@@ -130,26 +157,7 @@
 	</div>
 {/if}
 
-<!-- Sidebar Panel for Citation Details -->
-<div class={`sidebar ${selectedCitation ? 'open' : ''}`}>
-	{#if selectedCitation}
-		<div class="p-4 flex flex-col h-full">
-			<button class="self-end text-gray-500 hover:text-gray-800" on:click={() => (selectedCitation = null)}>
-				&times;
-			</button>
-			<h2 class="text-lg font-bold mb-2">{selectedCitation.source.name}</h2>
-
-			<div class="overflow-y-auto flex-1">
-				{#if selectedCitation.source.url && selectedCitation.source.url.endsWith('.pdf')}
-					<!-- PDF Viewer -->
-					<iframe src={selectedCitation.source.url} class="pdf-viewer"></iframe>
-				{:else}
-					<!-- Fallback for Text Documents -->
-					{#each selectedCitation.document as doc}
-						<p class="mb-2 text-sm text-gray-700 dark:text-gray-300">{doc}</p>
-					{/each}
-				{/if}
-			</div>
-		</div>
-	{/if}
-</div>
+<!-- Conditionally Render PDF Viewer -->
+{#if togglePdfViewer && selectedCitation?.pdfPath}
+	<PdfViewer pdfPath={selectedCitation?.pdfPath} />
+{/if}

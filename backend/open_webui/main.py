@@ -13,11 +13,13 @@ from contextlib import asynccontextmanager
 from urllib.parse import urlencode, parse_qs, urlparse
 from pydantic import BaseModel
 from sqlalchemy import text
+from pathlib import Path
 
 from typing import Optional
 from aiocache import cached
 import aiohttp
 import requests
+from urllib.parse import unquote
 
 
 from fastapi import (
@@ -42,7 +44,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import Response, StreamingResponse
+from starlette.responses import Response, StreamingResponse, FileResponse
 
 
 from open_webui.socket.main import (
@@ -498,6 +500,7 @@ app.state.config.RAG_OLLAMA_BASE_URL = RAG_OLLAMA_BASE_URL
 app.state.config.RAG_OLLAMA_API_KEY = RAG_OLLAMA_API_KEY
 
 app.state.config.PDF_EXTRACT_IMAGES = PDF_EXTRACT_IMAGES
+app.state.config.UPLOAD_DIR = UPLOAD_DIR
 
 app.state.config.YOUTUBE_LOADER_LANGUAGE = YOUTUBE_LOADER_LANGUAGE
 app.state.config.YOUTUBE_LOADER_PROXY_URL = YOUTUBE_LOADER_PROXY_URL
@@ -838,6 +841,33 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
         f"/api/models returned filtered models accessible to the user: {json.dumps([model['id'] for model in models])}"
     )
     return {"data": models}
+
+
+# Define an endpoint that accesses the data directory
+@app.get("/api/data")
+async def get_data(request: Request, user=Depends(get_admin_user)):
+    print(app.state.config.__dict__)
+    data_dir = request.app.state.UPLOAD_DIR
+    # Example: List files in the data directory
+    try:
+        files = os.listdir(data_dir)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Data directory not found")
+    return {"data_files": files}
+
+
+# Secure file serving route
+@app.get("/uploads/{filename}")
+async def get_file(filename: str, user: str = Depends(get_admin_user)):
+    # Decode the filename from URL encoding
+    decoded_filename = unquote(filename)
+
+    file_path = Path(UPLOAD_DIR.config_path) / decoded_filename
+    print(file_path)
+    #if not file_path.is_file():
+    #    raise HTTPException(status_code=404, detail="File not found")
+
+    return FileResponse(file_path)
 
 
 @app.get("/api/models/base")

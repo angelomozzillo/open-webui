@@ -674,6 +674,11 @@ GOOGLE_APPLICATION_CREDENTIALS_JSON = os.environ.get(
 UPLOAD_DIR = f"{DATA_DIR}/uploads"
 Path(UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
 
+UPLOAD_DIR = PersistentConfig(
+    env_name="UPLOAD_DIR",
+    config_path=f"{DATA_DIR}/uploads",  # Root of the config
+    env_value=f"{DATA_DIR}/uploads",
+)
 
 ####################################
 # Cache DIR
