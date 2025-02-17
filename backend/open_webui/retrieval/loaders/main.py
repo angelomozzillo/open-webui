@@ -19,6 +19,7 @@ from langchain_community.document_loaders import (
     YoutubeLoader,
 )
 from langchain_core.documents import Document
+from open_webui.retrieval.loaders.pdf import TxtDocumentLoader
 from open_webui.env import SRC_LOG_LEVELS, GLOBAL_LOG_LEVEL
 
 logging.basicConfig(stream=sys.stdout, level=GLOBAL_LOG_LEVEL)
@@ -150,8 +151,8 @@ class Loader:
         else:
             if file_ext == "pdf":
                 print('Loading pdf')
-                loader = PyPDFLoader(
-                    file_path, extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES")
+                loader = TxtDocumentLoader(
+                    file_path, #extract_images=self.kwargs.get("PDF_EXTRACT_IMAGES")
                 )
             elif file_ext == "csv":
                 loader = CSVLoader(file_path)

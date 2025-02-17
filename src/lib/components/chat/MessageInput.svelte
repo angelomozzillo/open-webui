@@ -16,7 +16,8 @@
 		showCallOverlay,
 		tools,
 		user as _user,
-		showControls
+		showControls,
+		chatId
 	} from '$lib/stores';
 
 	import { blobToFile, compressImage, createMessagesList, findWordIndices } from '$lib/utils';
@@ -70,6 +71,10 @@
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
+
+
+	let showPdfViewer = getContext(`showPdfViewer-${$chatId}`);
+	$: console.log('Input chatId:', $chatId, $showPdfViewer);
 
 	$: onChange({
 		prompt,
@@ -353,7 +358,9 @@
 <FilesOverlay show={dragged} />
 
 {#if loaded}
-	<div class="w-full font-primary">
+	<div class="w-full font-primary"
+	style="max-width: {$showPdfViewer ? '50%' : '100%'};"
+	>
 		<div class=" mx-auto inset-x-0 bg-transparent flex justify-center">
 			<div
 				class="flex flex-col px-3 {($settings?.widescreenMode ?? null)

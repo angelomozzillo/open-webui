@@ -4,7 +4,7 @@
 	import mermaid from 'mermaid';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
-	import { getContext, onDestroy, onMount, tick } from 'svelte';
+	import { getContext, onDestroy, onMount, tick, setContext } from 'svelte';
 	const i18n: Writable<i18nType> = getContext('i18n');
 
 	import { goto } from '$app/navigation';
@@ -36,7 +36,6 @@
 		chatTitle,
 		showArtifacts,
 		tools,
-		showPdfViewer
 	} from '$lib/stores';
 	import {
 		convertMessagesToHistory,
@@ -80,10 +79,9 @@
 	import Banner from '../common/Banner.svelte';
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
-	import PdfViewer from '$lib/components/chat/Messages/Pdf/PdfViewer.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
-	import PDFViewer from './PdfViewer.svelte';
+	import PDFViewer from './Messages/Pdf/PdfViewer.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
@@ -92,12 +90,6 @@
 	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
 	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 	import Citations from './Messages/Citations.svelte';
-	import { showPdf } from '$lib/stores';
-
-	function togglePdf() {
-		showPdf.update((v) => !v);
-		console.log('Toggled PDF, new value:', $showPdf); // Debugging log
-	}
 
 	export let chatIdProp = '';
 
@@ -112,6 +104,7 @@
 	let messagesContainerElement: HTMLDivElement;
 
 	let navbarElement;
+	let showPdfViewer;
 
 	let showEventConfirmation = false;
 	let eventConfirmationTitle = '';
@@ -142,20 +135,15 @@
 
 	let taskId = null;
 
-	let selectedCitation = null;
-
-	function handleCitationSelected(citation) {
-		selectedCitation = citation;
-	}
-
 	// Chat Input
 	let prompt = '';
 	let chatFiles = [];
 	let files = [];
 	let params = {};
 
-	let pdfPath: string = '';
-	$: console.log('Chat showPdf value:', $showPdf);
+
+	//let showPdfViewer = writable(false);
+  	
 
 	$: if (chatIdProp) {
 		(async () => {
@@ -791,6 +779,18 @@
 
 	const loadChat = async () => {
 		chatId.set(chatIdProp);
+		showPdfViewer = getContext("showPdfViewer-"+$chatId);
+
+		if (showPdfViewer) {
+			console.log('Setted Chat showPdf value:', $chatId, $showPdfViewer);
+		} else {
+			showPdfViewer = writable(false);
+			setContext("showPdfViewer-"+$chatId, showPdfViewer)
+			console.log('Not setted Chat showPdf value:', $chatId, $showPdfViewer);
+		}
+
+		//let pdfPath: string = '';
+		
 		chat = await getChatById(localStorage.token, $chatId).catch(async (error) => {
 			await goto('/');
 			return null;
@@ -1847,6 +1847,16 @@
 		}
 		await tick();
 
+		showPdfViewer = getContext("showPdfViewer-"+_chatId);
+
+		if (showPdfViewer) {
+			console.log('Setted initChatHandler showPdf value:', _chatId, $showPdfViewer);
+		} else {
+			showPdfViewer = writable(false);
+			setContext("showPdfViewer-"+_chatId, showPdfViewer)
+			console.log('Not setted initChatHandler showPdf value:', _chatId, $showPdfViewer);
+		}
+
 		return _chatId;
 	};
 
@@ -1973,6 +1983,7 @@
 									messagesContainerElement.scrollHeight - messagesContainerElement.scrollTop <=
 									messagesContainerElement.clientHeight + 5;
 							}}
+							style="max-width: {$showPdfViewer ? '50%' : '100%'};"
 						>
 							<div class=" h-full w-full flex flex-col">
 								<Messages
@@ -1994,7 +2005,8 @@
 							</div>
 						</div>
 
-						<div class=" pb-[1rem]">
+						<div class=" pb-[1rem]"
+						>
 							<MessageInput
 								{history}
 								{selectedModels}
@@ -2085,12 +2097,6 @@
 					{/if}
 				</div>
 			</Pane>
-
-			<Citations on:selectCitation={handleCitationSelected} />
-
-			{#if $showPdfViewer && selectedCitation}
-				<PdfViewer {selectedCitation} />
-			{/if}
 
 			<ChatControls
 				bind:this={controlPaneComponent}

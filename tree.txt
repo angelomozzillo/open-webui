@@ -1,0 +1,269 @@
+├── apis
+├── components
+│   ├── AddFilesPlaceholder.svelte
+│   ├── ChangelogModal.svelte
+│   ├── NotificationToast.svelte
+│   ├── OnBoarding.svelte
+│   ├── admin
+│   │   ├── Evaluations
+│   │   │   ├── FeedbackMenu.svelte
+│   │   │   ├── Feedbacks.svelte
+│   │   │   └── Leaderboard.svelte
+│   │   ├── Evaluations.svelte
+│   │   ├── Functions
+│   │   │   ├── FunctionEditor.svelte
+│   │   │   └── FunctionMenu.svelte
+│   │   ├── Functions.svelte
+│   │   ├── Settings
+│   │   │   ├── Audio.svelte
+│   │   │   ├── Connections
+│   │   │   │   ├── AddConnectionModal.svelte
+│   │   │   │   ├── ManageOllamaModal.svelte
+│   │   │   │   ├── OllamaConnection.svelte
+│   │   │   │   └── OpenAIConnection.svelte
+│   │   │   ├── Connections.svelte
+│   │   │   ├── Database.svelte
+│   │   │   ├── Documents.svelte
+│   │   │   ├── Evaluations
+│   │   │   │   ├── ArenaModelModal.svelte
+│   │   │   │   └── Model.svelte
+│   │   │   ├── Evaluations.svelte
+│   │   │   ├── General.svelte
+│   │   │   ├── Images.svelte
+│   │   │   ├── Interface.svelte
+│   │   │   ├── Models
+│   │   │   │   ├── ConfigureModelsModal.svelte
+│   │   │   │   ├── Manage
+│   │   │   │   │   ├── ManageMultipleOllama.svelte
+│   │   │   │   │   └── ManageOllama.svelte
+│   │   │   │   ├── ManageModelsModal.svelte
+│   │   │   │   └── ModelList.svelte
+│   │   │   ├── Models.svelte
+│   │   │   ├── Pipelines.svelte
+│   │   │   └── WebSearch.svelte
+│   │   ├── Settings.svelte
+│   │   ├── Users
+│   │   │   ├── Groups
+│   │   │   │   ├── AddGroupModal.svelte
+│   │   │   │   ├── Display.svelte
+│   │   │   │   ├── EditGroupModal.svelte
+│   │   │   │   ├── GroupItem.svelte
+│   │   │   │   ├── Permissions.svelte
+│   │   │   │   └── Users.svelte
+│   │   │   ├── Groups.svelte
+│   │   │   ├── UserList
+│   │   │   │   ├── AddUserModal.svelte
+│   │   │   │   ├── EditUserModal.svelte
+│   │   │   │   └── UserChatsModal.svelte
+│   │   │   └── UserList.svelte
+│   │   └── Users.svelte
+│   ├── app
+│   │   └── AppSidebar.svelte
+│   ├── channel
+│   │   ├── Channel.svelte
+│   │   ├── MessageInput
+│   │   │   └── InputMenu.svelte
+│   │   ├── MessageInput.svelte
+│   │   ├── Messages
+│   │   │   ├── Message
+│   │   │   │   ├── ProfilePreview.svelte
+│   │   │   │   └── ReactionPicker.svelte
+│   │   │   └── Message.svelte
+│   │   ├── Messages.svelte
+│   │   ├── Navbar.svelte
+│   │   └── Thread.svelte
+│   ├── chat
+│   │   ├── Artifacts.svelte
+│   │   ├── Chat.svelte
+│   │   ├── ChatControls.svelte
+│   │   ├── ChatPlaceholder.svelte
+│   │   ├── ContentRenderer
+│   │   │   └── FloatingButtons.svelte
+│   │   ├── Controls
+│   │   │   ├── Controls.svelte
+│   │   │   └── Valves.svelte
+│   │   ├── MessageInput
+│   │   │   ├── CallOverlay
+│   │   │   │   └── VideoInputMenu.svelte
+│   │   │   ├── CallOverlay.svelte
+│   │   │   ├── Commands
+│   │   │   │   ├── Knowledge.svelte
+│   │   │   │   ├── Models.svelte
+│   │   │   │   └── Prompts.svelte
+│   │   │   ├── Commands.svelte
+│   │   │   ├── FilesOverlay.svelte
+│   │   │   ├── InputMenu.svelte
+│   │   │   └── VoiceRecording.svelte
+│   │   ├── MessageInput.svelte
+│   │   ├── Messages
+│   │   │   ├── Citations.svelte
+│   │   │   ├── CitationsModal.svelte
+│   │   │   ├── CodeBlock.svelte
+│   │   │   ├── CodeExecutionModal.svelte
+│   │   │   ├── CodeExecutions.svelte
+│   │   │   ├── ContentRenderer.svelte
+│   │   │   ├── Error.svelte
+│   │   │   ├── Markdown
+│   │   │   │   ├── KatexRenderer.svelte
+│   │   │   │   ├── MarkdownInlineTokens.svelte
+│   │   │   │   ├── MarkdownTokens.svelte
+│   │   │   │   └── Source.svelte
+│   │   │   ├── Markdown.svelte
+│   │   │   ├── Message.svelte
+│   │   │   ├── MultiResponseMessages.svelte
+│   │   │   ├── Name.svelte
+│   │   │   ├── Pdf
+│   │   │   │   └── PdfViewer.svelte
+│   │   │   ├── ProfileImage.svelte
+│   │   │   ├── RateComment.svelte
+│   │   │   ├── ResponseMessage
+│   │   │   │   └── WebSearchResults.svelte
+│   │   │   ├── ResponseMessage.svelte
+│   │   │   ├── Skeleton.svelte
+│   │   │   ├── UserMessage.svelte
+│   │   │   └── old.Citations.svelte
+│   │   ├── Messages.svelte
+│   │   ├── ModelSelector
+│   │   │   └── Selector.svelte
+│   │   ├── ModelSelector.svelte
+│   │   ├── Navbar.svelte
+│   │   ├── Overview
+│   │   │   ├── Flow.svelte
+│   │   │   └── Node.svelte
+│   │   ├── Overview.svelte
+│   │   ├── PdfViewer.svelte
+│   │   ├── Placeholder.svelte
+│   │   ├── Settings
+│   │   │   ├── About.svelte
+│   │   │   ├── Account
+│   │   │   │   └── UpdatePassword.svelte
+│   │   │   ├── Account.svelte
+│   │   │   ├── Advanced
+│   │   │   │   └── AdvancedParams.svelte
+│   │   │   ├── Audio.svelte
+│   │   │   ├── Chats.svelte
+│   │   │   ├── General.svelte
+│   │   │   ├── Interface.svelte
+│   │   │   ├── Personalization
+│   │   │   │   ├── AddMemoryModal.svelte
+│   │   │   │   ├── EditMemoryModal.svelte
+│   │   │   │   └── ManageModal.svelte
+│   │   │   └── Personalization.svelte
+│   │   ├── SettingsModal.svelte
+│   │   ├── ShareChatModal.svelte
+│   │   ├── ShortcutsModal.svelte
+│   │   ├── Suggestions.svelte
+│   │   ├── TagChatModal.svelte
+│   │   └── Tags.svelte
+│   ├── common
+│   │   ├── Badge.svelte
+│   │   ├── Banner.svelte
+│   │   ├── Checkbox.svelte
+│   │   ├── CodeEditor.svelte
+│   │   ├── Collapsible.svelte
+│   │   ├── ConfirmDialog.svelte
+│   │   ├── DragGhost.svelte
+│   │   ├── Drawer.svelte
+│   │   ├── Dropdown.svelte
+│   │   ├── FileItem.svelte
+│   │   ├── FileItemModal.svelte
+│   │   ├── Folder.svelte
+│   │   ├── Image.svelte
+│   │   ├── ImagePreview.svelte
+│   │   ├── Loader.svelte
+│   │   ├── Marquee.svelte
+│   │   ├── Modal.svelte
+│   │   ├── Overlay.svelte
+│   │   ├── Pagination.svelte
+│   │   ├── RichTextInput
+│   │   │   └── AutoCompletion.js
+│   │   ├── RichTextInput.svelte
+│   │   ├── SVGPanZoom.svelte
+│   │   ├── Selector.svelte
+│   │   ├── SensitiveInput.svelte
+│   │   ├── Sidebar.svelte
+│   │   ├── SlideShow.svelte
+│   │   ├── Spinner.svelte
+│   │   ├── Switch.svelte
+│   │   ├── Tags
+│   │   │   ├── TagInput.svelte
+│   │   │   └── TagList.svelte
+│   │   ├── Tags.svelte
+│   │   ├── Textarea.svelte
+│   │   ├── Tooltip.svelte
+│   │   └── Valves.svelte
+│   ├── icons
+│   ├── layout
+│   │   ├── Help
+│   │   │   └── HelpMenu.svelte
+│   │   ├── Help.svelte
+│   │   ├── Navbar
+│   │   │   └── Menu.svelte
+│   │   ├── Navbar.svelte
+│   │   ├── Overlay
+│   │   │   └── AccountPending.svelte
+│   │   ├── Sidebar
+│   │   │   ├── ArchivedChatsModal.svelte
+│   │   │   ├── ChannelItem.svelte
+│   │   │   ├── ChannelModal.svelte
+│   │   │   ├── ChatItem.svelte
+│   │   │   ├── ChatMenu.svelte
+│   │   │   ├── Folders
+│   │   │   │   └── FolderMenu.svelte
+│   │   │   ├── Folders.svelte
+│   │   │   ├── RecursiveFolder.svelte
+│   │   │   ├── SearchInput.svelte
+│   │   │   └── UserMenu.svelte
+│   │   ├── Sidebar.svelte
+│   │   └── UpdateInfoToast.svelte
+│   ├── playground
+│   │   ├── Chat
+│   │   │   ├── Message.svelte
+│   │   │   └── Messages.svelte
+│   │   ├── Chat.svelte
+│   │   ├── Completions.svelte
+│   │   └── Notes.svelte
+│   └── workspace
+│       ├── Knowledge
+│       │   ├── CreateKnowledgeBase.svelte
+│       │   ├── ItemMenu.svelte
+│       │   ├── KnowledgeBase
+│       │   │   ├── AddContentMenu.svelte
+│       │   │   ├── AddTextContentModal.svelte
+│       │   │   └── Files.svelte
+│       │   └── KnowledgeBase.svelte
+│       ├── Knowledge.svelte
+│       ├── Models
+│       │   ├── ActionsSelector.svelte
+│       │   ├── Capabilities.svelte
+│       │   ├── FiltersSelector.svelte
+│       │   ├── Knowledge
+│       │   │   └── Selector.svelte
+│       │   ├── Knowledge.svelte
+│       │   ├── ModelEditor.svelte
+│       │   ├── ModelMenu.svelte
+│       │   └── ToolsSelector.svelte
+│       ├── Models.svelte
+│       ├── Prompts
+│       │   ├── PromptEditor.svelte
+│       │   └── PromptMenu.svelte
+│       ├── Prompts.svelte
+│       ├── Tools
+│       │   ├── ToolMenu.svelte
+│       │   └── ToolkitEditor.svelte
+│       ├── Tools.svelte
+│       └── common
+│           ├── AccessControl.svelte
+│           ├── AccessControlModal.svelte
+│           ├── ManifestModal.svelte
+│           └── ValvesModal.svelte
+├── constants.ts
+├── dayjs.js
+├── emoji-groups.json
+├── emoji-shortcodes.json
+├── i18n
+├── index.ts
+├── stores
+│   ├── index.ts
+├── types
+│   └── index.ts

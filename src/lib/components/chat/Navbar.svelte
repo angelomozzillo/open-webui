@@ -11,12 +11,13 @@
 		showControls,
 		showSidebar,
 		temporaryChatEnabled,
-		user,
-		showPdfViewer
+		user
 	} from '$lib/stores';
+	
 
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/stores';
+	import { derived } from 'svelte/store';
 
 	import ShareChatModal from '../chat/ShareChatModal.svelte';
 	import ModelSelector from '../chat/ModelSelector.svelte';
@@ -40,14 +41,19 @@
 
 	let showShareChatModal = false;
 	let showDownloadChatModal = false;
-	$: console.log('Navbar showPdf value:', $showPdfViewer);
+
+	let showPdfViewer = getContext(`showPdfViewer-${$chatId}`);
+	$: console.log('Navbar chatId:', $chatId, showPdfViewer);
+
+	//const showLocalChatShrink = derived(showPdfViewer, $showPdfViewer => $showPdfViewer);
+	//$: console.log('local Navbar showPdf value:', $showLocalChatShrink);
 </script>
 
 <ShareChatModal bind:show={showShareChatModal} chatId={$chatId} />
 
 <nav
 	class="sticky top-0 z-30 w-full px-1.5 py-1.5 -mb-8 flex items-center drag-region transition-all duration-300 ease-in-out"
-	style="transform: translateX({$showPdfViewer ? '-40%' : '0'});"
+	style="max-width: {$showPdfViewer ? '50%' : '100%'};"
 >
 	<div
 		class=" bg-gradient-to-b via-50% from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1] blur"
@@ -59,6 +65,7 @@
 				class="{$showSidebar
 					? 'md:hidden'
 					: ''} mr-1 self-start flex flex-none items-center text-gray-600 dark:text-gray-400"
+					
 			>
 				<button
 					id="sidebar-toggle-button"
@@ -75,16 +82,17 @@
 			</div>
 
 			<div
-				class="flex-1 overflow-hidden max-w-full py-0.5
-			{$showSidebar ? 'ml-1' : ''}
-			"
+				class="flex-1 overflow-hidden max-w-full py-0.5 {$showSidebar ? 'ml-1' : ''}"
 			>
 				{#if showModelSelector}
 					<ModelSelector bind:selectedModels showSetDefault={!shareEnabled} />
 				{/if}
 			</div>
 
-			<div class="self-start flex flex-none items-center text-gray-600 dark:text-gray-400">
+			<div 
+				class="self-start flex flex-none items-center text-gray-600 dark:text-gray-400"
+
+			>
 				<!-- <div class="md:hidden flex self-center w-[1px] h-5 mx-2 bg-gray-300 dark:bg-stone-700" /> -->
 				{#if shareEnabled && chat && (chat.id || $temporaryChatEnabled)}
 					<Menu
@@ -138,7 +146,7 @@
 				{#if !$mobile && ($user.role === 'admin' || $user?.permissions.chat?.controls)}
 					<Tooltip content={$i18n.t('Controls')}>
 						<button
-							class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
+							class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 							on:click={async () => {
 								await showControls.set(!$showControls);
 							}}
