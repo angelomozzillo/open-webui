@@ -6,6 +6,8 @@
 
 	import { slide } from 'svelte/transition';
 	import { page } from '$app/stores';
+	import { showPdf } from '$lib/stores';
+	
 
 	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
 	import MenuLines from '../icons/MenuLines.svelte';
@@ -14,9 +16,13 @@
 	const i18n = getContext('i18n');
 
 	export let channel;
+	$: console.log('Navbar showPdf value:', $showPdf);
 </script>
 
-<nav class="sticky top-0 z-30 w-full px-1.5 py-1.5 -mb-8 flex items-center drag-region">
+<nav
+	class="sticky top-0 z-30 w-full px-1.5 py-1.5 -mb-8 flex items-center drag-region transition-all duration-300 ease-in-out"
+	style="background: {$showPdf ? 'red' : 'blue'};"
+>
 	<div
 		class=" bg-gradient-to-b via-50% from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1] blur"
 	></div>

@@ -4,6 +4,8 @@ import type { ModelConfig } from '$lib/apis';
 import type { Banner } from '$lib/types';
 import type { Socket } from 'socket.io-client';
 
+
+
 import emojiShortCodes from '$lib/emoji-shortcodes.json';
 
 // Backend
@@ -15,6 +17,8 @@ export const user: Writable<SessionUser | undefined> = writable(undefined);
 export const isApp = writable(false);
 export const appInfo = writable(null);
 export const appData = writable(null);
+export const showPdfViewer = writable(false);
+export const showPdf = writable(false);
 
 // Frontend
 export const MODEL_DOWNLOAD_POOL = writable({});

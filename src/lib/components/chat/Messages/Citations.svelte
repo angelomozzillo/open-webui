@@ -3,7 +3,9 @@
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
-	import PdfViewer from './Pdf/PdfViewer.svelte'; // Import PdfViewer component
+	import { showPdfViewer } from '$lib/stores';
+
+	import PdfViewer from '$lib/components/chat/Messages/Pdf/PdfViewer.svelte'; // Import PdfViewer component
 
 	const i18n = getContext('i18n');
 
@@ -16,23 +18,23 @@
 	let selectedCitation: any = null;
 	let isCollapsibleOpen = false;
 
-	export let isPdfExpanded = false; // New prop to control expansion
-	let togglePdfViewer = false; // Flag to control PDF visibility
+	//export let isPdfExpanded = false; // New prop to control expansion
+	//let showPdfViewer = false; // Flag to control PDF visibility
 
-	function togglePdfExpansion() {
-		isPdfExpanded = !isPdfExpanded; // Toggle the expansion state
-	}
+	//function togglePdfExpansion() {
+	//	showPdfViewer = !showPdfViewer; // Toggle the expansion state
+	//}
 
 	// Function to handle the visibility of the PDF viewer when a citation is clicked
 	async function togglePdfViewerVisibility(citation: any) {
 		// Check if the citation is already selected
 		if (selectedCitation && selectedCitation.id === citation.id) {
 			// If the same citation is clicked, toggle visibility
-			togglePdfViewer = !togglePdfViewer;
+			showPdfViewer.update(value => !value);
 		} else {
 			// Otherwise, select the new citation and show the PDF
 			selectedCitation = citation;
-			togglePdfViewer = true;
+			showPdfViewer.update(value => true);
 			await fetchCitationPDF(citation);
 		}
 	}
@@ -158,6 +160,6 @@
 {/if}
 
 <!-- Conditionally Render PDF Viewer -->
-{#if togglePdfViewer && selectedCitation?.pdfPath}
-	<PdfViewer pdfPath={selectedCitation?.pdfPath} />
+{#if showPdfViewer && selectedCitation?.pdfPath}
+	<PdfViewer selectedCitation={selectedCitation} />
 {/if}

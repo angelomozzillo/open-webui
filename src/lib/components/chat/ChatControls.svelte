@@ -14,6 +14,7 @@
 	import EllipsisVertical from '../icons/EllipsisVertical.svelte';
 	import Artifacts from './Artifacts.svelte';
 	import { min } from '@floating-ui/utils';
+	import { showPdf } from '$lib/stores';
 
 	export let history;
 	export let models = [];
@@ -133,6 +134,8 @@
 	$: if (!chatId) {
 		closeHandler();
 	}
+
+	$: console.log('Controls PDF visibility:', $showPdf);
 </script>
 
 <SvelteFlowProvider>

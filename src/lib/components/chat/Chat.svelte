@@ -14,7 +14,6 @@
 	import type { i18n as i18nType } from 'i18next';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
-
 	import {
 		chatId,
 		chats,
@@ -36,7 +35,8 @@
 		showOverview,
 		chatTitle,
 		showArtifacts,
-		tools
+		tools,
+		showPdfViewer
 	} from '$lib/stores';
 	import {
 		convertMessagesToHistory,
@@ -80,6 +80,7 @@
 	import Banner from '../common/Banner.svelte';
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
+	import PdfViewer from '$lib/components/chat/Messages/Pdf/PdfViewer.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import PDFViewer from './PdfViewer.svelte';
@@ -87,6 +88,16 @@
 	import Placeholder from './Placeholder.svelte';
 	import NotificationToast from '../NotificationToast.svelte';
 	import Spinner from '../common/Spinner.svelte';
+	import { writable } from 'svelte/store';
+	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
+	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
+	import Citations from './Messages/Citations.svelte';
+	import { showPdf } from '$lib/stores';
+
+	function togglePdf() {
+		showPdf.update((v) => !v);
+		console.log('Toggled PDF, new value:', $showPdf); // Debugging log
+	}
 
 	export let chatIdProp = '';
 
@@ -131,16 +142,20 @@
 
 	let taskId = null;
 
+	let selectedCitation = null;
+
+	function handleCitationSelected(citation) {
+		selectedCitation = citation;
+	}
+
 	// Chat Input
 	let prompt = '';
 	let chatFiles = [];
 	let files = [];
 	let params = {};
-	let pdfUrl = './1d0963b0-f965-4a74-b445-f9c5fb8c749c_MOZZILLO_Missione_652_autoriz_dottorandi_signed_signed.pdf';
-	let isSidebarOpen = true;
-	let sidebarWidth = 0; 
 
-	$: sidebarWidth = isSidebarOpen ? 600 : 0;
+	let pdfPath: string = '';
+	$: console.log('Chat showPdf value:', $showPdf);
 
 	$: if (chatIdProp) {
 		(async () => {
@@ -2070,16 +2085,12 @@
 					{/if}
 				</div>
 			</Pane>
-			<Pane
-				class="h-full flex w-full relative"
-				bind:size={sidebarWidth}
-				minSize={0}
-				maxSize={600}
-				style="transition: width 0.3s ease;"
-			>
-				<!-- Pass pdfUrl and isSidebarOpen to PDFViewer -->
-				<PDFViewer {pdfUrl} bind:isSidebarOpen={isSidebarOpen} />
-			</Pane>
+
+			<Citations on:selectCitation={handleCitationSelected} />
+
+			{#if $showPdfViewer && selectedCitation}
+				<PdfViewer {selectedCitation} />
+			{/if}
 
 			<ChatControls
 				bind:this={controlPaneComponent}
@@ -2102,8 +2113,6 @@
 				{showMessage}
 				{eventTarget}
 			/>
-			
-			
 		</PaneGroup>
 	{:else if loading}
 		<div class=" flex items-center justify-center h-full w-full">
