@@ -29,19 +29,22 @@
 	//}
 
 	// Function to handle the visibility of the PDF viewer when a citation is clicked
+
 	async function togglePdfViewerVisibility(citation: any) {
-		console.log(`Before update  ${$chatId}: ${$showPdfViewer}`);
+		console.log(`Before update ${$chatId}: ${$showPdfViewer}`);
+		
 		// Check if the citation is already selected
 		if (selectedCitation && selectedCitation.id === citation.id) {
 			// If the same citation is clicked, toggle visibility
 			showPdfViewer.update(value => !value);
 		} else {
 			// Otherwise, select the new citation and show the PDF
-			selectedCitation = citation;
+			selectedCitation = { ...citation };  // Ensure new reference for reactivity
 			showPdfViewer.update(value => true);
 			await fetchCitationPDF(citation);
 		}
-		console.log(`After update  ${$chatId}: ${$showPdfViewer}`);
+
+		console.log(`After update ${$chatId}: ${$showPdfViewer}`);
 	}
 
 	function calculateShowRelevance(sources: any[]) {
@@ -142,7 +145,9 @@
 				} else {
 					console.error('Failed to fetch citation data:', response.status);
 				}
-			} else if (citation.metadata?.length > 0) {
+			} 
+			
+			if (citation.metadata?.length > 0) {
 				// Case 2: Construct PDF path from file_id and name
 				const fileMetadata = citation.metadata[0]; // Assuming the first metadata object is relevant
 				if (fileMetadata.file_id && fileMetadata.name) {

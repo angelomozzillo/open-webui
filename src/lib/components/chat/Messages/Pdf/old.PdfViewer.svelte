@@ -1,18 +1,12 @@
 <script lang="ts">
 	//import { showPdfViewer } from '$lib/stores';
-	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
-	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
-	import { getContext, onMount, setContext } from 'svelte';
+	import { getContext } from 'svelte';
 
 	import { chatId } from '$lib/stores';
 	//export let showPdfViewer; // Now we receive this as a prop
 	export let selectedCitation;
 
 	let showPdfViewer = getContext("showPdfViewer-"+$chatId);
-	function togglePdf() {
-		showPdfViewer.update(value => !value);
-		console.log('Toggled PDF, new value:', $chatId, $showPdfViewer); // Debugging log
-	}
 </script>
 
 <!-- PDF Viewer -->

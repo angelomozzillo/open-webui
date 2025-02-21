@@ -20,6 +20,10 @@ from aiocache import cached
 import aiohttp
 import requests
 from urllib.parse import unquote
+import pymupdf as fitz
+import re
+from fuzzywuzzy import process, fuzz
+import io
 
 
 from fastapi import (
@@ -843,6 +847,19 @@ async def get_models(request: Request, user=Depends(get_verified_user)):
     return {"data": models}
 
 
+############################
+# Pdf Management
+############################
+def clean_text(text: str) -> str:
+    """Cleans the input text by removing non-breaking spaces, tabs, and hyphenation artifacts."""
+    text = text.replace("\xa0", " ").replace("\t", " ")
+    text = re.sub(r"(\w)-\s*\n\s*(\w)", r"\1\2", text)
+    text = re.sub(r"(?<![.!?])\s*\n\s*(?=[a-zA-Z0-9])", " ", text)
+    text = re.sub(r"\s{2,}", " ", text)
+    text = "\n".join(line.strip() for line in text.splitlines())
+    return text
+
+
 # Define an endpoint that accesses the data directory
 @app.get("/api/data")
 async def get_data(request: Request, user=Depends(get_admin_user)):
@@ -864,10 +881,113 @@ async def get_file(filename: str, user: str = Depends(get_admin_user)):
 
     file_path = Path(UPLOAD_DIR.config_path) / decoded_filename
     print(file_path)
-    #if not file_path.is_file():
+    # if not file_path.is_file():
     #    raise HTTPException(status_code=404, detail="File not found")
 
     return FileResponse(file_path)
+
+def remove_word_from_match(match_text):
+    words = match_text.split()  # Split the text into words
+    if words:
+        words.pop()  # Remove the last word (or you could remove from anywhere)
+    return ' '.join(words)
+
+
+def highlight_text_on_page(
+    doc: fitz.Document, page_num: int, search_text: str, threshold: int = 50
+) -> None:
+    """Highlights the best fuzzy match of the search text on the specified page."""
+    page = doc.load_page(page_num - 1)
+    rects = page.search_for(search_text)
+
+    if not rects:
+        page_text = page.get_text("text")
+
+        
+        search_text = search_text.replace(" ", "").replace("'", "").replace("’", "")
+        all_page = clean_text(page_text).replace(" ", "").replace("'", "").replace("’", "")
+        removed_chars_count = len(clean_text(page_text)) - len(all_page)
+        
+        
+        import unicodedata
+        search_text = unicodedata.normalize('NFKC', search_text)
+        all_page = unicodedata.normalize('NFKC', all_page)
+        
+        
+        
+        import difflib
+        sequence = difflib.SequenceMatcher(None, all_page, search_text)
+        match = sequence.find_longest_match(0, len(all_page), 0, len(search_text))
+        match_start = match.a
+        match_size = match.size
+        closest_match = all_page[match_start:match_start + match_size]
+        print(closest_match)
+        # Step 2: Extend the match until the next period (.)
+        # Look for the next period after the match
+        end_index = all_page.find('.', match_start + match_size + removed_chars_count)
+        if end_index != -1:
+            # Extend the match until the period
+            closest_match = page_text[match_start: end_index + 1]
+
+        print(closest_match)
+        print(re.sub(r'\n+', ' ', closest_match))
+        rects = page.search_for(re.sub(r'(\n+|- )', '', closest_match))
+        while True:
+            if len(rects) > 0:
+                break  # Break the loop if a match is found
+            else:
+                rects = page.search_for(re.sub(r'(\n+|- )', '', closest_match))
+                closest_match = remove_word_from_match(closest_match)  # Remove a word and try again
+        
+        #closest_match = clean_text(unicodedata.normalize('NFKC', closest_match))
+        #print(closest_match)
+
+        
+    print(rects)
+    for rect in rects:
+        page.add_highlight_annot(rect)
+
+
+@app.post("/highlight/")
+async def highlight_pdf(
+    file: UploadFile = File(...),
+    page_num: int = Form(...),
+    search_text: str = Form(...),
+):
+
+    print(
+        f"Received: file={file.filename}, page_num={page_num}, search_text={search_text}"
+    )
+    try:
+        pdf_bytes = await file.read()
+        doc = fitz.open("pdf", pdf_bytes)
+
+        # Debugging: Ensure doc has pages
+        print(f"PDF Loaded, Total Pages: {len(doc)}")
+
+        # Check if the page number is valid
+        if page_num < 0 or page_num >= len(doc):
+            raise HTTPException(status_code=400, detail="Invalid page number")
+
+        # Highlight function (ensure it works properly)
+        highlight_text_on_page(doc, page_num, search_text)
+        pdf_buffer = io.BytesIO()
+        doc.save(pdf_buffer)
+        pdf_buffer.seek(0)
+
+        print(pdf_buffer)
+
+        return Response(
+            pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"inline; filename=highlighted_{file.filename}"
+            },
+        )
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 
 
 @app.get("/api/models/base")
